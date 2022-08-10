@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+   <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Calculator</title>
+      <link rel="stylesheet" href="style.css">
+      <script src="script.js" defer></script>
+   </head>
+
+   <body>
+      <div class="workSpace">
+         <div class="topBar">
+            <span class="menu-button" title="Open Menu">≡</span>
+            <span class="calculator-type">Standard</span>
+         </div>
+
+         <div class="output">
+            <div class="prev-operand"></div>
+            <div class="current-operand"></div>
+         </div>
+
+         <div class="calculator"></div>
+      </div>
+
+      <div class="history">
+         <div class="titles">
+            <div class="title historyBtn active show" title="Calculations Now">History</div>
+            <div class="title memoryBtn" title="All Time Calculations">Memory</div>
+         </div>
+
+         <div class="allCalculations">
+            <div class="calculations1 historyVersion show">
+               <div class="calculation">
+                  <div class="operands">90 + 60 =</div>
+                  <div class="result">150</div>
+               </div>
+            </div>
+
+            <div class="calculations2 historyVersion show">
+               <div class="calculation">
+                  <div class="operands">90 + 60 =</div>
+                  <div class="result">150</div>
+               </div>
+               <div class="calculation">
+                  <div class="operands">100 + 60 =</div>
+                  <div class="result">160</div>
+               </div>
+            </div>
+         </div>
+
+      </div>
+   </body>
+
+</html>
