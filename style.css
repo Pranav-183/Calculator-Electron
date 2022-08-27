@@ -24,6 +24,54 @@ body {
    overflow-x: hidden;
 }
 
+/* Menu */
+
+.menu {
+   height: 100%;
+   width: 15vw;
+   position: absolute;
+   top: 7%;
+   background-color: var(--whitesmoke);
+   border-right: 1px solid var(--whitesmoke-hover);
+   transform: translateX(-100%);
+   transition: .4s ease-in-out;
+}
+
+.menu.open {
+   transform: translateX(0);
+}
+
+.heading {
+   font-weight: 550;
+   font-size: 1.25rem;
+   padding-left: 5%;
+   padding-top: 5%;
+   height: 4%;
+}
+
+.types {
+   width: 100%;
+   height: 15%;
+}
+
+.types > .type {
+   height: 50%;
+   display: flex;
+   align-items: center;
+   gap: 5%;
+   padding-left: 5%;
+   transition: .2s ease-in-out;
+   cursor: pointer;
+}
+
+.types > .type:hover {
+   background-color: var(--whitesmoke-hover);
+}
+
+.type > .icon {
+   height: 25px;
+}
+
 /* LHS */
 
 .workSpace {
@@ -228,7 +276,7 @@ body {
 /* CALCULATIONS PART */
 
 .allCalculations {
-   height: calc(95% - 14vmin);
+   height: 95%;
    width: calc(2 * calc(100% - 4vmin));
    display: flex;
    position: relative;
@@ -267,8 +315,9 @@ body {
    display: flex;
    flex-direction: column;
    padding: 0 2vmin;
+   align-items: flex-end;
    background-color: var(--whitesmoke);
-   transition: .2 ease-in-out;
+   transition: .5s ease-in-out;
 }
 
 .calculations1.historyVersion:not(.show) {
@@ -313,6 +362,14 @@ body {
 
 .result {
    font-size: 4vmin;
+}
+
+/* CLEAR CALCULATIONS */
+
+.clearCalulations {
+   font-size: 2rem;
+   position: absolute;
+   bottom: 0;
 }
 
 /* MEDIA QUERIES */

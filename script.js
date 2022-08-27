@@ -1,3 +1,4 @@
+const menu = document.querySelector('.menu')
 const menuButton = document.querySelector('.menu-button')
 const calculatorType = document.querySelector('.calculator-type')
 const calculator = document.querySelector('.calculator')
@@ -9,7 +10,36 @@ const prevOperand = document.querySelector('.prev-operand')
 const currOperand = document.querySelector('.current-operand')
 
 let calcType = 'Standard'
-let result
+let resultReceived = false
+const history = []
+const memory = JSON.parse(localStorage.getItem('calculatorMemory')) || []
+
+memory.forEach(mem => {
+   resultReceived = true
+   addHistoryOrMem('mem', mem.operands, mem.result)
+   resultReceived = false
+})
+
+{
+// history.forEach(hist => {
+//    const calculation = document.createElement('div')
+//    calculation.classList.add('calculation')
+   
+//    const operands = document.createElement('div')
+//    operands.classList.add('operands')
+//    operands.innerText = hist.operands
+//    calculation.appendChild(operands)
+   
+//    const result = document.createElement('div')
+//    result.classList.add('result')
+//    result.innerText = hist.result
+//    calculation.appendChild(result)
+
+//    calculations1.appendChild(calculation)
+// })
+// addHistoryOrMem('hist', '90 + 60 =', '150')
+}
+
 let operators = ['+', '-', '*', '/']
 const condition = op => op === '+' || op === '-' || op === '*' || op === '/' || op === '✖' || op === '÷'
 
@@ -20,21 +50,21 @@ const keys = {
       ['C', 'key dark clearAll', clearAll],
       ['⌫', 'key dark del', del],
       ['¹/ₓ', 'key dark', ''],
-      ['x²', 'key dark', ''],
-      ['√x', 'key dark', ''],
-      ['÷', 'key dark big operator', ''],
+      ['x²', 'key dark', square],
+      ['√x', 'key dark', squareRoot],
+      ['÷', 'key dark big operator', addOperator],
       [7, 'key num', addNum],
       [8, 'key num', addNum],
       [9, 'key num', addNum],
-      ['✖', 'key dark operator', ''],
+      ['✖', 'key dark operator', addOperator],
       [4, 'key num', addNum],
       [5, 'key num', addNum],
       [6, 'key num', addNum],
-      ['-', 'key dark big operator', ''],
+      ['-', 'key dark big operator', addOperator],
       [1, 'key num', addNum],
       [2, 'key num', addNum],
       [3, 'key num', addNum],
-      ['+', 'key dark big operator', ''],
+      ['+', 'key dark big operator', addOperator],
       ['+/-', 'key', ''],
       [0, 'key num', addNum],
       ['.', 'key dot num', addNum],
@@ -65,9 +95,33 @@ const openMenu = () => {
    if (menuButton.classList.contains('open')) {
       calculatorType.classList.remove('open')
       menuButton.classList.remove('open')
+      menu.classList.remove('open')
    } else {
       calculatorType.classList.add('open')
       menuButton.classList.add('open')
+      menu.classList.add('open')
+   }
+}
+
+function addHistoryOrMem(histOrMem, operandsText, resultText) {
+   if (resultReceived === false) return
+   const calculation = document.createElement('div')
+   calculation.classList.add('calculation')
+   
+   const operands = document.createElement('div')
+   operands.classList.add('operands')
+   operands.innerText = operandsText
+   calculation.appendChild(operands)
+   
+   const result = document.createElement('div')
+   result.classList.add('result')
+   result.innerText = resultText
+   calculation.appendChild(result)
+
+   if (histOrMem === 'hist') {
+      calculations1.appendChild(calculation)
+   } else {
+      calculations2.appendChild(calculation)
    }
 }
 
@@ -78,14 +132,60 @@ function clearCurr() {
 function clearAll() {
    currOperand.innerText = ''
    prevOperand.innerText = ''
+   resultReceived = false
 }
 
 function del() {
    currOperand.innerText = currOperand.innerText.slice(0, -1)
 }
 
+function squareRoot() {
+   const num = Number(currOperand.innerText.trim())
+   currOperand.innerText = Math.sqrt(num)
+   if (resultReceived === true) {
+      prevOperand.innerText = ''
+   }
+}
+
+function square() {
+   const num = Number(currOperand.innerText.trim())
+   currOperand.innerText = Math.pow(num, 2)
+   if (resultReceived === true) {
+      prevOperand.innerText = ''
+   }
+}
+
+function final() {
+   const arrForCalculation = prevOperand.innerText.split(' ')
+   if (arrForCalculation[0] === '' || arrForCalculation[1] === '' || currOperand.innerText === '') return
+   let first, second, final
+   if (currOperand.innerText !== '' && condition(prevOperand.innerText.slice(-1))) {
+      first = Number(arrForCalculation[0])
+      second = Number(currOperand.innerText)
+      const vo = new VarOperator(arrForCalculation[1])
+      final = vo.calculate(first, second)
+      prevOperand.innerText = `${first} ${arrForCalculation[1]} ${second} = `
+      currOperand.innerText = final
+   }
+
+   resultReceived = true
+
+   addHistoryOrMem('hist', prevOperand.innerText, currOperand.innerText)
+   history.push({ operands: prevOperand.innerText, result: currOperand.innerText })
+   
+   addHistoryOrMem('mem', prevOperand.innerText, currOperand.innerText)
+   memory.push({ operands: prevOperand.innerText, result: currOperand.innerText })
+   localStorage.setItem('calculatorMemory', JSON.stringify(memory))
+}
+
 function operate(currOperator) {
+   prevOperand.innerText += ` ${currOperand.innerText} ${currOperator}`
+   currOperand.innerText = ''
    const arrForCalculation = prevOperand.innerText.slice(0, -1).split(' ')
+   if (condition(arrForCalculation[1]) && arrForCalculation[2] === '') {
+      prevOperand.innerText = `${arrForCalculation[0]} ${currOperator}`
+      return
+   }
    // CONDITION BEFORE USED - prevOperand.innerText.match(/\d+/g) && prevOperand.innerText.match(/\d+/g).length >= 2
    if (arrForCalculation.length > 3) {
       // REGEX VERSION NOT WORKING PROPERLY
@@ -99,6 +199,7 @@ function operate(currOperator) {
 }
 
 function addNum(e) {
+   if (e.key === '.' && currOperand.innerText.includes('.')) return
    let num
    if (e.type === 'click') {
       num = e.target.innerText
@@ -111,7 +212,11 @@ function addNum(e) {
       })
    }
    if (!num) return
-   currOperand.innerText += num
+   if (e.key === '.' && currOperand.innerText === '') {
+      currOperand.innerText = '0.'
+   } else {
+      currOperand.innerText += num
+   }
 }
 
 function indexForNum(num) {
@@ -143,17 +248,23 @@ function indexForNum(num) {
 
 function addOperator(e) {
    let operator
+   if (prevOperand.innerText === '' && currOperand.innerText === '') return
    if (e.type === 'click') {
       operator = e.target.innerText
+      if (operator === '÷') {
+         operator = '/'
+      } else if (operator === '✖') {
+         operator = '*'
+      }
    } else if (e.type === 'keydown') {
       operator = e.key
    }
    if (!operator) return
    const prevIsOperator = condition(prevOperand.innerText.slice(-1))
-   console.log(prevIsOperator)
-   if (prevIsOperator) return
-   prevOperand.innerText += ` ${currOperand.innerText} ${operator}`
-   currOperand.innerText = ''
+   if (prevIsOperator) {
+      operate(operator)
+      return
+   }
    operate(operator)
 }
 
@@ -169,13 +280,23 @@ keys.standard.forEach(key => {
 
 document.addEventListener('keydown', e => {
    if ((e.code.includes('Digit') && !e.shiftKey) || e.key === '.') {
+      if (resultReceived === true) clearAll()
       addNum(e)
-   } else if (e.code === 'Backspace') {
-      // When result is received clearAll else del
-      // Do Later
+   } else if (e.code === 'Backspace' || e.code === 'Delete') {
+      if (resultReceived === true) return clearAll()
       del()
    } else if ((e.key === '+' && e.shiftKey) || (e.key === '-') || (e.key === '*' && e.shiftKey) || (e.key === '/')) {
+      if (resultReceived === true) {
+         let result = currOperand.innerText
+         clearAll()
+         prevOperand.innerText = result
+      }
       addOperator(e)
+   } else if (e.key === 'Escape') {
+      clearAll()
+   } else if (e.key === 'Enter') {
+      if (resultReceived === true) return
+      final()
    }
 })
 
